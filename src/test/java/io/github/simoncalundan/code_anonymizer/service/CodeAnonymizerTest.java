@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CodeAnonymizerServiceTest {
 
-    private final CodeAnonymizerService anonymizerService = new CodeAnonymizerService();
+    private final CodeAnonymizerServiceImpl anonymizerService = new CodeAnonymizerServiceImpl();
 
     @Test
     void testEmptyCodeReturnsEmptyString() {
