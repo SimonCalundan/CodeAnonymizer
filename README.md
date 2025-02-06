@@ -15,7 +15,7 @@ A powerful command-line tool that anonymizes source code while preserving its st
 1. Ensure you have Java 11 or higher installed
 2. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/code-anonymizer.git
+git clone https://github.com/SimonCalundan/CodeAnonymizer.git
 cd code-anonymizer
 ```
 
