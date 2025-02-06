@@ -9,6 +9,30 @@ A command-line tool that anonymizes source code while preserving its structural 
 - **Terminal Output**: Displays anonymized code directly in your terminal
 - **Configurable Settings**: Flexible options for string literal preservation
 
+## Example
+
+Input code:
+```java
+public class UserService {
+    private final DatabaseConnection dbConnection;
+    
+    public User findUserByEmail(String emailAddress) {
+        return dbConnection.queryFirst("SELECT * FROM users WHERE email = ?", emailAddress);
+    }
+}
+```
+
+Output code:
+```java
+public class var1 {
+    private final var2 var3;
+
+    public var4 var5(String var6) {
+        return var3.queryFirst("SELECT * FROM users WHERE email = ?", var6);
+    }
+}
+```
+
 ## Installation
 1. Ensure Java 11+ is installed
 2. Install Maven from https://maven.apache.org/download.cgi
