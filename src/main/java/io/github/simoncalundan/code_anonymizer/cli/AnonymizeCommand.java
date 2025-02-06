@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
 
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,18 +29,15 @@ public class AnonymizeCommand implements Runnable {
 
     @Override
     public void run() {
-        // Validate file path
         File file = new File(filePath);
         if (!file.exists()) {
             log.error("Error: File does not exist - {}", filePath);
             return;
         }
-
         if (!file.isFile()) {
             log.error("Error: Path is not a file - {}", filePath);
             return;
         }
-
         if (!file.canRead()) {
             log.error("Error: Cannot read file - {}", filePath);
             return;
@@ -50,19 +45,13 @@ public class AnonymizeCommand implements Runnable {
 
         try {
             String sourceCode = Files.readString(file.toPath());
-
             if (sourceCode.trim().isEmpty()) {
                 log.error("Error: File is empty");
                 return;
             }
-
             String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, preserveStringLiterals);
-
-            StringSelection stringSelection = new StringSelection(anonymizedCode);
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
-
-            log.info("Code anonymized and copied to clipboard!");
-
+            System.out.println(anonymizedCode);
+            log.info("Code anonymized successfully!");
         } catch (IOException e) {
             log.error("Error processing file: {}", e.getMessage());
             e.printStackTrace();
