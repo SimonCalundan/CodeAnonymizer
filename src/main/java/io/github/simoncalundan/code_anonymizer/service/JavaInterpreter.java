@@ -8,13 +8,43 @@ import java.util.Set;
 @Service
 public class JavaInterpreter implements LanguageInterpreter {
     private static final Set<String> KEYWORDS = Set.of(
-            "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char",
-            "class", "const", "continue", "default", "do", "double", "else", "enum",
-            "extends", "final", "finally", "float", "for", "if", "implements", "import",
-            "instanceof", "int", "interface", "long", "native", "new", "package",
-            "private", "protected", "public", "return", "short", "static", "strictfp",
-            "super", "switch", "synchronized", "this", "throw", "throws", "transient",
-            "try", "void", "volatile", "while"
+            // Control flow
+            "if", "else", "for", "do", "while", "break", "continue", "return",
+            "switch", "case", "default", "try", "catch", "finally", "throw", "throws",
+
+            // Modifiers and declarations
+            "public", "private", "protected", "static", "final", "abstract", "synchronized",
+            "transient", "volatile", "native", "strictfp", "const",
+
+            // Type keywords
+            "class", "interface", "enum", "extends", "implements", "package",
+            "import", "instanceof", "super", "this", "new", "void",
+            "boolean", "byte", "char", "short", "int", "long", "float", "double",
+
+            // Standard library classes
+            "String", "Object", "System", "Math", "Runtime", "Thread", "Exception",
+            "StringBuilder", "StringBuffer",
+
+            // Collections framework
+            "List", "ArrayList", "LinkedList", "Set", "HashSet", "TreeSet",
+            "Map", "HashMap", "TreeMap", "Queue", "Deque", "Stack", "Vector",
+
+            // Wrapper classes
+            "Integer", "Double", "Boolean", "Character", "Byte",
+
+            // Common annotations
+            "Override", "Deprecated", "SuppressWarnings", "FunctionalInterface",
+            "Service", "Component", "Repository", "Controller", "Autowired",
+
+            // Generic type parameters
+            "T", "E", "K", "V", "N", "S", "U",
+
+            // Functional interfaces
+            "Function", "Consumer", "Supplier", "Predicate", "BiFunction",
+            "BiConsumer", "BiPredicate", "Runnable", "Callable",
+
+            // Literal values
+            "true", "false", "null"
     );
 
     @Override

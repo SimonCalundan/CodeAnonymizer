@@ -22,6 +22,7 @@ public class CodeAnonymizerServiceImpl implements CodeAnonymizerService {
 
     public String anonymizeCode(String sourceCode, String fileName, boolean preserveStringLiterals) {
         LanguageInterpreter interpreter = languageService.getInterpreterForFile(fileName);
+        log.info("Interpreter gathered from file {}", interpreter);
         Set<String> keywords = interpreter.getReservedKeywords();
         log.info("Starting code anonymization (preserveStringLiterals: {}", preserveStringLiterals);
         if (sourceCode == null || sourceCode.isEmpty()) {
@@ -58,8 +59,13 @@ public class CodeAnonymizerServiceImpl implements CodeAnonymizerService {
 
             Pattern identifierPattern = Pattern.compile(
                     "\\b(?!(?:" + String.join("|", keywords) + ")\\b)" +
-                            "([a-zA-Z_][a-zA-Z0-9_]*)\\b(?!\\s*\\()"
+                            "([a-zA-Z_][a-zA-Z0-9_]*)\\b"
             );
+            // Old pattern
+            //            Pattern identifierPattern = Pattern.compile(
+            //                    "\\b(?!(?:" + String.join("|", keywords) + ")\\b)" +
+            //                            "([a-zA-Z_][a-zA-Z0-9_]*)\\b(?!\\s*\\()"
+            //            );
 
             Matcher matcher = identifierPattern.matcher(processedCode);
             StringBuffer result = new StringBuffer();
@@ -81,7 +87,7 @@ public class CodeAnonymizerServiceImpl implements CodeAnonymizerService {
                 finalCode = finalCode.replace(entry.getKey(), entry.getValue());
             }
 
-            log.info("Anonymized code copied to clipboard!");
+            log.info("File successfully anonymized!");
             return finalCode;
         } catch (Exception ex) {
             log.error("Error during code anonymization", ex);

@@ -50,7 +50,7 @@ public class AnonymizeCommand implements Runnable {
                 log.error("Error: File is empty");
                 return;
             }
-            String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, preserveStringLiterals);
+            String anonymizedCode = anonymizerService.anonymizeCode(sourceCode,filePath, preserveStringLiterals);
             System.out.println(anonymizedCode);
             log.info("Code anonymized successfully!");
         } catch (IOException e) {
