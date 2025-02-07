@@ -50,9 +50,10 @@ java -jar code-anonymizer.jar <file-path> [options]
 ```
 
 ### Options
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--preserve-strings` | Maintain original string literals | `true` |
+| Option                | Description | Default |
+|-----------------------|-------------|---------|
+| `--preserve-strings`  | Maintain original string literals | `true` |
+| `--preserve-comments` | Maintain original code comments | `true` |
 
 ### Examples
 ```bash
