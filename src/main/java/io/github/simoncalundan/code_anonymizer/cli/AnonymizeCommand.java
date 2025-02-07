@@ -1,6 +1,7 @@
 package io.github.simoncalundan.code_anonymizer.cli;
 
 import io.github.simoncalundan.code_anonymizer.service.CodeAnonymizerService;
+import io.github.simoncalundan.code_anonymizer.service.CodeAnonymizerServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine;
@@ -23,7 +24,7 @@ public class AnonymizeCommand implements Runnable {
             description = "Preserve string literals (default: true)")
     private boolean preserveStringLiterals = true;
 
-    public AnonymizeCommand(CodeAnonymizerService anonymizerService) {
+    public AnonymizeCommand(CodeAnonymizerServiceImpl anonymizerService) {
         this.anonymizerService = anonymizerService;
     }
 
@@ -49,7 +50,7 @@ public class AnonymizeCommand implements Runnable {
                 log.error("Error: File is empty");
                 return;
             }
-            String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, preserveStringLiterals);
+            String anonymizedCode = anonymizerService.anonymizeCode(sourceCode,filePath, preserveStringLiterals);
             System.out.println(anonymizedCode);
             log.info("Code anonymized successfully!");
         } catch (IOException e) {
