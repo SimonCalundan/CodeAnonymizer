@@ -24,6 +24,11 @@ public class AnonymizeCommand implements Runnable {
             description = "Preserve string literals (default: true)")
     private boolean preserveStringLiterals = true;
 
+    @CommandLine.Option(names = {"--preserve-comments"},
+            description = "Strip comments (default: true)")
+    private boolean preserveComments = true;
+
+
     public AnonymizeCommand(CodeAnonymizerServiceImpl anonymizerService) {
         this.anonymizerService = anonymizerService;
     }
@@ -50,7 +55,7 @@ public class AnonymizeCommand implements Runnable {
                 log.error("Error: File is empty");
                 return;
             }
-            String anonymizedCode = anonymizerService.anonymizeCode(sourceCode,filePath, preserveStringLiterals);
+            String anonymizedCode = anonymizerService.anonymizeCode(sourceCode,filePath, preserveStringLiterals, preserveComments);
             System.out.println(anonymizedCode);
             log.info("Code anonymized successfully!");
         } catch (IOException e) {
