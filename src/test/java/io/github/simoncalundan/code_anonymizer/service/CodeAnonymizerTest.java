@@ -219,22 +219,22 @@ class CodeAnonymizerServiceTest {
     @Test
     void testPreserveInlineComments() {
         String sourceCode = """
-       int age = 25; // User age
-       String name = "John"; // User name""";
+                int age = 25; // User age
+                String name = "John"; // User name""";
         String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("// User age"));
         assertTrue(anonymizedCode.contains("// User name"));
-        assertFalse(anonymizedCode.contains("age"));
-        assertFalse(anonymizedCode.contains("name"));
+        assertFalse(anonymizedCode.contains("int age"));
+        assertFalse(anonymizedCode.contains("String name"));
     }
 
     @Test
     void testStripInlineComments() {
         String sourceCode = """
-       int age = 25; // User age
-       String name = "John"; // User name""";
+                int age = 25; // User age
+                String name = "John"; // User name""";
         String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, false);
         compareResults(sourceCode, anonymizedCode);
 
@@ -247,28 +247,54 @@ class CodeAnonymizerServiceTest {
     @Test
     void testPreserveBlockComments() {
         String sourceCode = """
-       /* User information section */
-       int age = 25;
-       /* Store user's full name
-        * in this variable */
-       String name = "John";""";
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
+                /* User information section */
+                int age = 25;
+                /* Store user's full name
+                 * in this variable */
+                String name = "John";""";
+
+        String expectedCode = """
+                /* User information section */
+                int var1 = 25;
+                /* Store user's full name
+                 * in this variable */
+                String var2 = "John";""";
+
+        String anonymizedCode = anonymizerService.anonymizeCode(
+                sourceCode,
+                TEST_FILE_NAME,
+                true,  // preserveStringLiterals
+                true   // preserveComments
+        );
+
         compareResults(sourceCode, anonymizedCode);
 
-        assertTrue(anonymizedCode.contains("/* User information section */"));
-        assertTrue(anonymizedCode.contains("/* Store user's full name"));
-        assertFalse(anonymizedCode.contains("age"));
-        assertFalse(anonymizedCode.contains("name"));
+        String normalizedExpected = expectedCode.replaceAll("\r\n", "\n");
+        String normalizedActual = anonymizedCode.replaceAll("\r\n", "\n");
+
+        assertEquals(normalizedExpected, normalizedActual,
+                "Anonymized code should match expected output exactly");
+
+        assertTrue(anonymizedCode.contains("/* User information section */"),
+                "First block comment should be preserved");
+        assertTrue(anonymizedCode.contains("/* Store user's full name"),
+                "Second block comment should be preserved");
+        assertFalse(anonymizedCode.contains("age"),
+                "Original variable name 'age' should be anonymized");
+        assertTrue(anonymizedCode.contains("var1"),
+                "First variable should be anonymized to 'var1'");
+        assertTrue(anonymizedCode.contains("var2"),
+                "Second variable should be anonymized to 'var2'");
     }
 
     @Test
     void testStripBlockComments() {
         String sourceCode = """
-       /* User information section */
-       int age = 25;
-       /* Store user's full name
-        * in this variable */
-       String name = "John";""";
+                /* User information section */
+                int age = 25;
+                /* Store user's full name
+                 * in this variable */
+                String name = "John";""";
         String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, false);
         compareResults(sourceCode, anonymizedCode);
 
@@ -281,10 +307,10 @@ class CodeAnonymizerServiceTest {
     @Test
     void testMixedCommentsPreservation() {
         String sourceCode = """
-       /* User data */
-       int age = 25; // Age in years
-       // Current user
-       String name = "John"; /* Full name */""";
+                /* User data */
+                int age = 25; // Age in years
+                // Current user
+                String name = "John"; /* Full name */""";
         String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
         compareResults(sourceCode, anonymizedCode);
 
