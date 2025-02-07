@@ -21,20 +21,20 @@ class CodeAnonymizerServiceTest {
 
     @Test
     void testEmptyCodeReturnsEmptyString() {
-        String result = anonymizerService.anonymizeCode("", TEST_FILE_NAME, false);
+        String result = anonymizerService.anonymizeCode("", TEST_FILE_NAME, false, true);
         assertEquals("", result);
     }
 
     @Test
     void testNullCodeReturnsEmptyString() {
-        String result = anonymizerService.anonymizeCode(null, TEST_FILE_NAME, false);
+        String result = anonymizerService.anonymizeCode(null, TEST_FILE_NAME, false, true);
         assertEquals("", result);
     }
 
     @Test
     void testBasicVariableAnonymization() {
         String sourceCode = "int userAge = 30;\nString userName = \"John\";";
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false, true);
         compareResults(sourceCode, anonymizedCode);
 
 
@@ -48,7 +48,7 @@ class CodeAnonymizerServiceTest {
     @Test
     void testKeywordsNotReplaced() {
         String sourceCode = "if (true) {\n  int x = 10;\n}";
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("if (true)"),
@@ -60,8 +60,8 @@ class CodeAnonymizerServiceTest {
     @Test
     void testConsistentAnonymization() {
         String sourceCode = "int x = 10; int y = x + 5;";
-        String firstPass = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false);
-        String secondPass = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false);
+        String firstPass = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false, true);
+        String secondPass = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false, true);
 
         assertEquals(firstPass, secondPass);
     }
@@ -74,7 +74,7 @@ class CodeAnonymizerServiceTest {
                 "        int total = base * count;\n" +
                 "    }\n" +
                 "}";
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("public class"), "Class declaration should remain");
@@ -87,7 +87,7 @@ class CodeAnonymizerServiceTest {
     @Test
     void testLiteralsPreserved() {
         String sourceCode = "int x = 42; boolean flag = true; String message = \"Hello\";";
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("42"), "Numeric literals should be preserved");
@@ -103,7 +103,7 @@ class CodeAnonymizerServiceTest {
     @Test
     void testLiteralsNotPreserved() {
         String sourceCode = "int x = 42; boolean flag = true; String message = \"Hello\";";
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, false, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("42"), "Numeric literals should be preserved");
@@ -120,7 +120,7 @@ class CodeAnonymizerServiceTest {
                     private Map<String, Object> mapping = new HashMap<>();
                 }
                 """;
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
         compareResults(sourceCode, anonymizedCode);
 
         // Verify collections and interfaces are preserved
@@ -142,7 +142,7 @@ class CodeAnonymizerServiceTest {
                     StringBuilder builder = new StringBuilder();
                 }
                 """;
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("String"));
@@ -162,7 +162,7 @@ class CodeAnonymizerServiceTest {
                     public void testMethod() {}
                 }
                 """;
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("@Service"));
@@ -181,7 +181,7 @@ class CodeAnonymizerServiceTest {
                     }
                 }
                 """;
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("<T, K, V>"));
@@ -207,12 +207,116 @@ class CodeAnonymizerServiceTest {
                     private Predicate<Integer> isPositive = num -> num > 0;
                 }
                 """;
-        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true);
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
         compareResults(sourceCode, anonymizedCode);
 
         assertTrue(anonymizedCode.contains("Function"));
         assertTrue(anonymizedCode.contains("Consumer"));
         assertTrue(anonymizedCode.contains("Supplier"));
         assertTrue(anonymizedCode.contains("Predicate"));
+    }
+
+    @Test
+    void testPreserveInlineComments() {
+        String sourceCode = """
+                int age = 25; // User age
+                String name = "John"; // User name""";
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
+        compareResults(sourceCode, anonymizedCode);
+
+        assertTrue(anonymizedCode.contains("// User age"));
+        assertTrue(anonymizedCode.contains("// User name"));
+        assertFalse(anonymizedCode.contains("int age"));
+        assertFalse(anonymizedCode.contains("String name"));
+    }
+
+    @Test
+    void testStripInlineComments() {
+        String sourceCode = """
+                int age = 25; // User age
+                String name = "John"; // User name""";
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, false);
+        compareResults(sourceCode, anonymizedCode);
+
+        assertFalse(anonymizedCode.contains("// User age"));
+        assertFalse(anonymizedCode.contains("// User name"));
+        assertFalse(anonymizedCode.contains("age"));
+        assertFalse(anonymizedCode.contains("name"));
+    }
+
+    @Test
+    void testPreserveBlockComments() {
+        String sourceCode = """
+                /* User information section */
+                int age = 25;
+                /* Store user's full name
+                 * in this variable */
+                String name = "John";""";
+
+        String expectedCode = """
+                /* User information section */
+                int var1 = 25;
+                /* Store user's full name
+                 * in this variable */
+                String var2 = "John";""";
+
+        String anonymizedCode = anonymizerService.anonymizeCode(
+                sourceCode,
+                TEST_FILE_NAME,
+                true,  // preserveStringLiterals
+                true   // preserveComments
+        );
+
+        compareResults(sourceCode, anonymizedCode);
+
+        String normalizedExpected = expectedCode.replaceAll("\r\n", "\n");
+        String normalizedActual = anonymizedCode.replaceAll("\r\n", "\n");
+
+        assertEquals(normalizedExpected, normalizedActual,
+                "Anonymized code should match expected output exactly");
+
+        assertTrue(anonymizedCode.contains("/* User information section */"),
+                "First block comment should be preserved");
+        assertTrue(anonymizedCode.contains("/* Store user's full name"),
+                "Second block comment should be preserved");
+        assertFalse(anonymizedCode.contains("age"),
+                "Original variable name 'age' should be anonymized");
+        assertTrue(anonymizedCode.contains("var1"),
+                "First variable should be anonymized to 'var1'");
+        assertTrue(anonymizedCode.contains("var2"),
+                "Second variable should be anonymized to 'var2'");
+    }
+
+    @Test
+    void testStripBlockComments() {
+        String sourceCode = """
+                /* User information section */
+                int age = 25;
+                /* Store user's full name
+                 * in this variable */
+                String name = "John";""";
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, false);
+        compareResults(sourceCode, anonymizedCode);
+
+        assertFalse(anonymizedCode.contains("/* User information section */"));
+        assertFalse(anonymizedCode.contains("/* Store user's full name"));
+        assertFalse(anonymizedCode.contains("age"));
+        assertFalse(anonymizedCode.contains("name"));
+    }
+
+    @Test
+    void testMixedCommentsPreservation() {
+        String sourceCode = """
+                /* User data */
+                int age = 25; // Age in years
+                // Current user
+                String name = "John"; /* Full name */""";
+        String anonymizedCode = anonymizerService.anonymizeCode(sourceCode, TEST_FILE_NAME, true, true);
+        compareResults(sourceCode, anonymizedCode);
+
+        assertTrue(anonymizedCode.contains("/* User data */"));
+        assertTrue(anonymizedCode.contains("// Age in years"));
+        assertTrue(anonymizedCode.contains("// Current user"));
+        assertTrue(anonymizedCode.contains("/* Full name */"));
     }
 }
