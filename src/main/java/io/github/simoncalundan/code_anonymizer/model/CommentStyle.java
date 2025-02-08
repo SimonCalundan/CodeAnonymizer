@@ -2,7 +2,7 @@ package io.github.simoncalundan.code_anonymizer.model;
 
 public enum CommentStyle {
     JAVA_STYLE("//", "/*", "*/"),
-    PYTHON_STYLE("#", null, null),
+    PYTHON_STYLE("#", "\"\"\"", "\"\"\""),
     DEFAULT("//", "/*", "*/");
 
     private final String singleLine;
